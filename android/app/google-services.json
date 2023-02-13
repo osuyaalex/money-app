@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "452355175973",
+    "project_id": "walletapp-538c0",
+    "storage_bucket": "walletapp-538c0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:452355175973:android:1e09a4e266a22027ef31cc",
+        "android_client_info": {
+          "package_name": "com.osuyaalex.walletapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "452355175973-1ebmoljrkndskiem8jh07l6thke2d3vo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtHhdNcbC0SyRBBPxpb0jSP_kEEERXzik"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "452355175973-1ebmoljrkndskiem8jh07l6thke2d3vo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

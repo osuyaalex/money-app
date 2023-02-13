@@ -1,0 +1,85 @@
+
+
+
+
+
+
+
+
+pickImageFromGallery()async{
+   Uint8List im = await _controller.pickImage(ImageSource.gallery);
+   setState(() {
+     _image = im;
+   });
+ }
+  pickImageFromCamera()async{
+    Uint8List im = await _controller.pickImage(ImageSource.camera);
+    setState(() {
+      _image = im;
+    });
+  }
+
+
+   GestureDetector(
+                  onTap: (){
+                    showDialog(
+                        context: context,
+                        builder: (context){
+                          return AlertDialog(
+                            content: Column(
+                              children: [
+                                TextButton(
+                                    onPressed: (){
+                                      pickImageFromCamera();
+                                    },
+                                    child: const Text('Take Picture')
+                                ),
+                                TextButton(
+                                    onPressed: (){
+                                      pickImageFromGallery();
+                                    },
+                                    child: const Text('Choose Existing Photo')
+                                )
+                              ],
+                            ),
+                          );
+                        }
+                    );
+                  },
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 55,
+                      backgroundImage: NetworkImage('https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg'),
+                    ),
+                  ),
+                ),
+editProfile()async{
+  CollectionReference creatorCollection = FirebaseFirestore.instance.collection('Creators');
+  CollectionReference editProfileCollection = FirebaseFirestore.instance.collection('EditProfile');
+  String profileImageUrl =await uploadProfilePictureToStorage(_image);
+  String profilePicUrl =await uploadProfilePictureToStorage(_profilePic);
+  creatorCollection.doc(FirebaseAuth.instance.currentUser!.uid).get().then((DocumentSnapshot snapshot) {
+    String email = snapshot.get('email');
+    creatorCollection.where("fullName", isNotEqualTo: 'a').where('email',isEqualTo : email).get().then((querySnapshot) {
+      querySnapshot.docs.forEach((result) {
+        final DocumentSnapshot creatorDoc = result;
+        editProfileCollection.doc(FirebaseAuth.instance.currentUser!.uid).set({
+          'Email': creatorDoc.get('email'),
+          'FullName': creatorDoc.get("fullName"),
+          'EditedFullName': _name,
+          'location': _location,
+          'links': _linked,
+          'contact':_contact,
+          'dob':_dob,
+          'uid':FirebaseAuth.instance.currentUser!.uid,
+          'likes':[],
+          'Headers': profileImageUrl,
+          'ProfilePic':profilePicUrl
+        }).whenComplete((){
+          Navigator.push(context, MaterialPageRoute(builder: (context){
+            return const CreatorHomeScreen();
+          }));
+        });
+      });
+    });
+  });
