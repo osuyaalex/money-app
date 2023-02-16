@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:walletapp/Creators%20Screen/edit_profile_screen.dart';
+import 'package:walletapp/Creators%20Screen/upload_screen.dart';
 
 class CreatorHomeScreen extends StatefulWidget {
 
@@ -24,13 +25,13 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
 
   likePosts()async{
     DocumentSnapshot document = await _firestore.collection('Creators').doc(_auth.currentUser!.uid).get();
-    if(document ['likes'].contains(_auth.currentUser!.uid)){
+    if(document ['like'].contains(_auth.currentUser!.uid)){
       _firestore.collection('Creators').doc(_auth.currentUser!.uid).update({
-        'likes': FieldValue.arrayRemove([_auth.currentUser!.uid])//this is how to remove values to a list in firestore
+        'like': FieldValue.arrayRemove([_auth.currentUser!.uid])//this is how to remove values to a list in firestore
       });
     }else{
       _firestore.collection('Creators').doc(_auth.currentUser!.uid).update({
-        'likes': FieldValue.arrayUnion([_auth.currentUser!.uid])//this is how to add values to a list in firestore
+        'like': FieldValue.arrayUnion([_auth.currentUser!.uid])//this is how to add values to a list in firestore
       });
     }
   }
@@ -49,7 +50,7 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffe5e5e5),
+      backgroundColor: Color(0xfffafafa),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -137,20 +138,31 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                          ),
                          Padding(
                            padding: const EdgeInsets.all(8.0),
-                           child: data['EditedFullName']== null ?Text(data['fullName'],
+                           child: data['FullName']== null ?Text(data['fullName'],
                              style: GoogleFonts.epilogue(
                                  fontWeight: FontWeight.w700,
                                  fontSize: 20
                              ),
-                           ):Text(data['EditedFullName'],
+                           ):Text(data['FullName'],
                              style: GoogleFonts.epilogue(
                                  fontWeight: FontWeight.w700,
                                  fontSize: 20
                              ),
-                           ),
+                           )
+                         ),
+                         Row(
+                           mainAxisAlignment: MainAxisAlignment.center,
+                           children: [
+                             Text(data['uid'].toString(),
+                               style: GoogleFonts.epilogue(
+                                 fontSize: 14
+                               ),
+                             ),
+                             const Icon(Icons.copy)
+                           ],
                          ),
                          const SizedBox(
-                           height: 25,
+                           height: 20,
                          ),
                          Container(
                            height: 350,
@@ -166,7 +178,7 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                                ),
                                ListTile(
                                    leading: const Icon(Icons.email_outlined, color: Colors.black,),
-                                   title: Text('name@email.com',
+                                   title: Text(data['email'],
                                      style: GoogleFonts.epilogue(
                                          fontSize: 18,
                                          fontWeight: FontWeight.w500
@@ -183,7 +195,14 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                                ),
                                ListTile(
                                  leading: const Icon(Icons.credit_card_outlined, color: Colors.black,),
-                                 title: Text('Linked',
+                                 title: data['links']== null?Text('Linked',
+                                   style: GoogleFonts.epilogue(
+                                       decoration: TextDecoration.underline,
+                                       decorationStyle: TextDecorationStyle.double,
+                                       fontSize: 18,
+                                       fontWeight: FontWeight.w500
+                                   ),
+                                 ):Text(data['links'].toString(),
                                    style: GoogleFonts.epilogue(
                                        decoration: TextDecoration.underline,
                                        decorationStyle: TextDecorationStyle.double,
@@ -194,7 +213,12 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                                ),
                                ListTile(
                                  leading: SvgPicture.asset('assets/icons/Call.svg'),
-                                 title: Text('07068808118',
+                                 title: data['contact']== null?Text('contact',
+                                   style: GoogleFonts.epilogue(
+                                       fontSize: 18,
+                                       fontWeight: FontWeight.w500
+                                   ),
+                                 ):Text(data['contact'].toString(),
                                    style: GoogleFonts.epilogue(
                                        fontSize: 18,
                                        fontWeight: FontWeight.w500
@@ -243,10 +267,9 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                                            onTap:(){
                                              likePosts();
                                            },
-                                             child: data['likes'].contains(uid)?const Icon(Icons.favorite, color: Colors.black):
+                                             child: data['like'].contains(uid)?const Icon(Icons.favorite, color: Colors.black):
                                                  const Icon(Icons.favorite_border)
                                          ),
-                                         Text(data['likes'].length.toString()),
                                          Padding(
                                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                            child: Text('Follow',
@@ -261,27 +284,34 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                                    ),
                                    Padding(
                                      padding: const EdgeInsets.all(15.0),
-                                     child: Container(
-                                         height: 40,
-                                         width: 40,
-                                         decoration: BoxDecoration(
-                                             borderRadius: BorderRadius.circular(20),
-                                             border: const Border(
-                                               top: BorderSide(
-                                                   color: Colors.black
-                                               ),
-                                               bottom: BorderSide(
-                                                   color: Colors.black
-                                               ),
-                                               left: BorderSide(
-                                                   color: Colors.black
-                                               ),
-                                               right: BorderSide(
-                                                   color: Colors.black
-                                               ),
-                                             )
-                                         ),
-                                         child:const Icon(Icons.upload)
+                                     child: GestureDetector(
+                                       onTap: (){
+                                         Navigator.push(context, MaterialPageRoute(builder: (context){
+                                           return UploadScreen();
+                                         }));
+                                       },
+                                       child: Container(
+                                           height: 40,
+                                           width: 40,
+                                           decoration: BoxDecoration(
+                                               borderRadius: BorderRadius.circular(20),
+                                               border: const Border(
+                                                 top: BorderSide(
+                                                     color: Colors.black
+                                                 ),
+                                                 bottom: BorderSide(
+                                                     color: Colors.black
+                                                 ),
+                                                 left: BorderSide(
+                                                     color: Colors.black
+                                                 ),
+                                                 right: BorderSide(
+                                                     color: Colors.black
+                                                 ),
+                                               )
+                                           ),
+                                           child:const Icon(Icons.upload)
+                                       ),
                                      ),
                                    ),
                                    Container(

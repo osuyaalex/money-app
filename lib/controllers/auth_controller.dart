@@ -40,11 +40,16 @@ class AuthController{
       if(fullName.isNotEmpty && email.isNotEmpty && password.isNotEmpty && confirmPassword.isNotEmpty){
         UserCredential cred = await _auth.createUserWithEmailAndPassword(email: email, password: password);
         await _firebaseFirestore.collection('Creators').doc(cred.user!.uid).set({
-          'fullName': fullName,
+          'FullName': fullName,
           'email': email,
           'password': password,
           'Following': [],
-          'uid':_auth.currentUser!.uid
+          'uid':_auth.currentUser!.uid,
+          'like':[],
+          'links':null,
+          'contact':null,
+          'location':null,
+          'linked':null
         });
         res = 'success';
       }
