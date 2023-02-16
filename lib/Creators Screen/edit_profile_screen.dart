@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:walletapp/Creators%20Screen/creators_home.dart';
 
 
@@ -29,11 +31,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Uint8List? _profilePic;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final Stream<QuerySnapshot> _creatorsStream = FirebaseFirestore.instance.collection('Creators').snapshots();
    bool _loading = false;
    final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   final String _imageKey = 'image';
   final String _profilePicKey = 'profilePic';
+  Map<String, dynamic> creatorData= {};
 
 
 
@@ -57,6 +59,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
      setState(() {
        _loading = true;
      });
+     final SharedPreferences prefs = await SharedPreferences.getInstance();
+     await prefs.setString('name', _fullNameController.text);
+     await prefs.setString('location', _locationController.text);
+     await prefs.setString('links', _linkedController.text);
+     await prefs.setInt('contact', int.parse(_contactController.text));
      CollectionReference creatorCollection = FirebaseFirestore.instance.collection('Creators');
      String profileImageUrl =await uploadHeaderToStorage(_image);
      String profilePicUrl =await uploadProfilePictureToStorage(_profilePic);
@@ -94,26 +101,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   }
   pickProfileFromGallery()async{
-    Uint8List im = await _authController.pickImage(ImageSource.gallery);
+    Uint8List im = await _authController.pickImage(ImageSource.gallery, _profilePicKey);
     setState(() {
       _profilePic = im;
     });
+
   }
   pickProfileFromCamera()async{
-    Uint8List im = await _authController.pickImage(ImageSource.camera);
+    Uint8List im = await _authController.pickImage(ImageSource.camera, _profilePicKey);
     setState(() {
       _profilePic = im;
     });
   }
 
   pickHeaderFromGallery()async{
-    Uint8List im = await _authController.pickImage(ImageSource.gallery);
+    Uint8List im = await _authController.pickImage(ImageSource.gallery, _imageKey);
     setState(() {
       _image = im;
     });
   }
   pickHeaderFromCamera()async{
-    Uint8List im = await _authController.pickImage(ImageSource.camera);
+    Uint8List im = await _authController.pickImage(ImageSource.camera, _imageKey);
     setState(() {
       _image = im;
     });
@@ -127,12 +135,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  loadFormData()async{
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('name');
+    final location = prefs.getString('location');
+    final links = prefs.getString('links');
+    final contact = prefs.getInt('contact')??00;
+    setState(() {
+      _fullNameController.text= name!;
+      _locationController.text = location!;
+      _linkedController.text = links!;
+      _contactController.text = contact.toString();
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    loadFormData();
   }
-
+  // _getInitialImages() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //
+  //   String? image1String = prefs.getString(_imageKey);
+  //   if (image1String != null) {
+  //     setState(() {
+  //       _image = base64.decode(image1String);
+  //     });
+  //   }
+  //
+  //   String? image2String = prefs.getString(_profilePicKey);
+  //   if (image2String != null) {
+  //     setState(() {
+  //       _profilePic = base64.decode(image2String);
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -167,257 +206,230 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
         body: SingleChildScrollView(
-          child:StreamBuilder<QuerySnapshot>(
-            stream: _creatorsStream,
-            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.hasError) {
-                return Text('Something went wrong');
-              }
+          child: Column(
+                      children: [
+                        Stack(
+                          children: [
+                            GestureDetector(
+                              onTap: (){
+                                showDialog(
+                                    context: context,
+                                    builder: (context){
+                                      return AlertDialog(
+                                        //alignment: Alignment.center,
+                                        actions: [
+                                          TextButton(
+                                              onPressed: (){
+                                                pickHeaderFromCamera();
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text('Take Picture')
+                                          ),
+                                          TextButton(
+                                              onPressed: (){
+                                                pickHeaderFromGallery();
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text('Choose Existing Photo')
+                                          )
+                                        ],
 
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Text("Loading");
-              }
-              return Column(
-                children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                  Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-                  _fullNameController.text = data['FullName'];
-                  _linkedController.text = data['links'];
-                  _locationController.text = data['location'];
-                  _contactController.text = data['contact'];
-                  return  Column(
-                    children: [
-                      Stack(
-                        children: [
-                          GestureDetector(
-                            onTap: (){
-                              showDialog(
-                                  context: context,
-                                  builder: (context){
-                                    return AlertDialog(
-                                      //alignment: Alignment.center,
-                                      actions: [
-                                        TextButton(
-                                            onPressed: (){
-                                              pickHeaderFromCamera();
-                                              Navigator.pop(context);
-                                            },
-                                            child: const Text('Take Picture')
-                                        ),
-                                        TextButton(
-                                            onPressed: (){
-                                              pickHeaderFromGallery();
-                                              Navigator.pop(context);
-                                            },
-                                            child: const Text('Choose Existing Photo')
-                                        )
-                                      ],
-
-                                    );
-                                  }
-                              );
-                            },
-                            child: Stack(
-                              alignment: Alignment.bottomCenter,
-                              children: [
-                                Container(
-                                  height: 180,
-                                  width: MediaQuery.of(context).size.width,
-                                  decoration: _image != null ?BoxDecoration(
-                                      image:DecorationImage(image: MemoryImage(_image!), fit: BoxFit.fill)
-                                  ):const BoxDecoration(
-                                      color: Colors.black
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: (){
-                              showDialog(
-                                  context: context,
-                                  builder: (context){
-                                    return AlertDialog(
-                                      //alignment: Alignment.center,
-                                      actions: [
-                                        TextButton(
-                                            onPressed: (){
-                                              pickProfileFromCamera();
-                                              Navigator.pop(context);
-                                            },
-                                            child: const Text('Take Picture')
-                                        ),
-                                        TextButton(
-                                            onPressed: (){
-                                              pickProfileFromGallery();
-                                              Navigator.pop(context);
-                                            },
-                                            child: const Text('Choose Existing Photo')
-                                        )
-                                      ],
-
-                                    );
-                                  }
-                              );
-                            },
-                            child: SizedBox(
-                              child: Padding(
-                                padding:  const EdgeInsets.only(top: 110),
-                                child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child:_profilePic == null? const CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                        'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg'
+                                      );
+                                    }
+                                );
+                              },
+                              child: Stack(
+                                alignment: Alignment.bottomCenter,
+                                children: [
+                                  Container(
+                                    height: 180,
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: _image != null ?BoxDecoration(
+                                        image:DecorationImage(image: MemoryImage(_image!), fit: BoxFit.fill)
+                                    ):const BoxDecoration(
+                                        color: Colors.black
                                     ),
-                                    radius: 65,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: (){
+                                showDialog(
+                                    context: context,
+                                    builder: (context){
+                                      return AlertDialog(
+                                        //alignment: Alignment.center,
+                                        actions: [
+                                          TextButton(
+                                              onPressed: (){
+                                                pickProfileFromCamera();
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text('Take Picture')
+                                          ),
+                                          TextButton(
+                                              onPressed: (){
+                                                pickProfileFromGallery();
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text('Choose Existing Photo')
+                                          )
+                                        ],
 
-                                  ):CircleAvatar(
-                                    backgroundImage: MemoryImage(_profilePic!),
-                                    radius: 65,
+                                      );
+                                    }
+                                );
+                              },
+                              child: SizedBox(
+                                child: Padding(
+                                  padding:  const EdgeInsets.only(top: 110),
+                                  child: Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child:_profilePic == null? const CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                          'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg'
+                                      ),
+                                      radius: 65,
 
+                                    ):CircleAvatar(
+                                      backgroundImage: MemoryImage(_profilePic!),
+                                      radius: 65,
+
+                                    ),
                                   ),
                                 ),
                               ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: TextFormField(
+                            validator: (v){
+                              if(v!.isEmpty){
+                                return 'Full Name Must Not Be Empty';
+                              }
+                            },
+                            //initialValue: data['FullName'] ?? 'a',// basically means data['fullName']== null ?'':data['fullName']
+                           controller: _fullNameController,
+
+                            decoration: InputDecoration(
+                                labelText: 'Name',
+                                labelStyle: GoogleFonts.epilogue(
+                                    fontWeight: FontWeight.w500
+                                )
                             ),
-                          )
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: TextFormField(
-                          validator: (v){
-                            if(v!.isEmpty){
-                              return 'Full Name Must Not Be Empty';
-                            }
-                          },
-                          //initialValue: data['FullName'] ?? 'a',// basically means data['fullName']== null ?'':data['fullName']
-                         controller: _fullNameController,
-
-                          decoration: InputDecoration(
-                              labelText: 'Name',
-                              labelStyle: GoogleFonts.epilogue(
-                                  fontWeight: FontWeight.w500
-                              )
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: TextFormField(
-                          //initialValue: data['location']??'',
-                          controller: _locationController,
-                          onSaved: (v){
-                            if(data['location']!= null){
-                              data['location'] = v;
-                            }
-                          },
-                          keyboardType: TextInputType.streetAddress,
-                          decoration: InputDecoration(
-                              labelText: 'Location',
-                              labelStyle: GoogleFonts.epilogue(
-                                fontWeight: FontWeight.w500,
-                              )
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: TextFormField(
+                            //initialValue: data['location']??'',
+                            controller: _locationController,
 
+                            keyboardType: TextInputType.streetAddress,
+                            decoration: InputDecoration(
+                                labelText: 'Location',
+                                labelStyle: GoogleFonts.epilogue(
+                                  fontWeight: FontWeight.w500,
+                                )
+
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: TextFormField(
-                          //initialValue: data['linked']??'',
-                          controller: _linkedController,
-                          onSaved: (v){
-                            if(data['linked']!= null){
-                              data['linked'] = v;
-                            }
-                          },
-                          keyboardType: TextInputType.url,
-                          decoration: InputDecoration(
-                              labelText: 'Linked',
-                              labelStyle: GoogleFonts.epilogue(
-                                fontWeight: FontWeight.w500,
-                              )
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: TextFormField(
+                            //initialValue: data['linked']??'',
+                            controller: _linkedController,
 
+                            keyboardType: TextInputType.url,
+                            decoration: InputDecoration(
+                                labelText: 'Linked',
+                                labelStyle: GoogleFonts.epilogue(
+                                  fontWeight: FontWeight.w500,
+                                )
+
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: TextFormField(
-                          //initialValue: data['contact'].toString(),
-                          controller: _contactController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                              labelText: 'Contact',
-                              labelStyle: GoogleFonts.epilogue(
-                                fontWeight: FontWeight.w500,
-                              )
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: TextFormField(
+                            //initialValue: data['contact'].toString(),
+                            controller: _contactController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                                labelText: 'Contact',
+                                labelStyle: GoogleFonts.epilogue(
+                                  fontWeight: FontWeight.w500,
+                                )
 
+                            ),
                           ),
                         ),
-                      ),
 
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                              height: 40,
-                              width: 150,
-                              decoration:  BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: const Border(
-                                    top: BorderSide(
-                                        color: Colors.black
-                                    ),
-                                    bottom: BorderSide(
-                                        color: Colors.black
-                                    ),
-                                    left: BorderSide(
-                                        color: Colors.black
-                                    ),
-                                    right: BorderSide(
-                                        color: Colors.black
-                                    ),
-                                  )
-                              ),
-                              child: Center(
-                                child: Text('Go to upload',
-                                  style: GoogleFonts.epilogue(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14
-                                  ),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                                height: 40,
+                                width: 150,
+                                decoration:  BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    border: const Border(
+                                      top: BorderSide(
+                                          color: Colors.black
+                                      ),
+                                      bottom: BorderSide(
+                                          color: Colors.black
+                                      ),
+                                      left: BorderSide(
+                                          color: Colors.black
+                                      ),
+                                      right: BorderSide(
+                                          color: Colors.black
+                                      ),
+                                    )
                                 ),
-                              )
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      )
-                    ],
-                  );
-                }).toList(),
-              );
-            },
-          )
+                                child: Center(
+                                  child: Text('Go to upload',
+                                    style: GoogleFonts.epilogue(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14
+                                    ),
+                                  ),
+                                )
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 40,
+                        )
+                      ],
+                    ),
+        )
+
 
 
         ) ,
-      ),
+
     );
   }
 }

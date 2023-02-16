@@ -83,3 +83,13 @@ editProfile()async{
       });
     });
   });
+
+   // getDataFromFirestore()async{
+    //   DocumentSnapshot userDoc = await FirebaseFirestore.instance
+    //       .collection('Creators')
+    //       .doc(_auth.currentUser!.uid)
+    //       .get();
+    //   setState(() {
+    //     creatorData = userDoc.data()!as Map<String, dynamic>;
+    //   });
+    // }
