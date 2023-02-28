@@ -26,11 +26,11 @@ class AuthController{
 
       return imageBytes;
     }
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? imageString = prefs.getString(imageKey);
-    if (imageString != null) {
-      return base64.decode(imageString);
-    }
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // String? imageString = prefs.getString(imageKey);
+    // if (imageString != null) {
+    //   return base64.decode(imageString);
+    // }
 
     // If no image is found, return null
     return null;

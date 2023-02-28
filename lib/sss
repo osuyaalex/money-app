@@ -93,3 +93,20 @@ editProfile()async{
     //     creatorData = userDoc.data()!as Map<String, dynamic>;
     //   });
     // }
+
+
+
+
+     // CollectionReference creatorCollection = _firestore.collection('Creators');
+        // String itemImageUrl = await _uploadItemImageToStorage(_file);
+        // List<String>? multiImage = await _uploadMultipleItemImageToStorage();
+        // DocumentReference creatorDoc = creatorCollection.doc(_auth.currentUser!.uid);
+        // await creatorDoc.update({
+        //   'itemName': FieldValue.arrayUnion([_itemName]),
+        //   'itemImage': FieldValue.arrayUnion([itemImageUrl, multiImage]),
+        //   'itemDescription': FieldValue.arrayUnion([_itemDescription]),
+        //   'itemTag': FieldValue.arrayUnion([_itemTag])
+        //
+        // });
+
+

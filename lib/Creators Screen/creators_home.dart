@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:walletapp/Creators%20Screen/edit_profile_screen.dart';
-import 'package:walletapp/Creators%20Screen/upload_screen.dart';
+import 'package:walletapp/Creators%20Screen/upload/upload_screen.dart';
 
 class CreatorHomeScreen extends StatefulWidget {
 
@@ -49,6 +49,7 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
   }
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Color(0xfffafafa),
       body: CustomScrollView(
@@ -95,6 +96,7 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                  if (snapshot.connectionState == ConnectionState.waiting) {
                    return Text("Loading");
                  }
+                 if(!snapshot.hasData){}
 
                  return Column(
                    children: snapshot.data!.docs.map((DocumentSnapshot document) {
@@ -136,6 +138,9 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                              )
                            ],
                          ),
+                         const SizedBox(
+                           height: 10,
+                         ),
                          Padding(
                            padding: const EdgeInsets.all(8.0),
                            child: data['FullName']== null ?Text(data['fullName'],
@@ -165,160 +170,123 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                            height: 20,
                          ),
                          Container(
-                           height: 350,
+                           height: 320,
                            width: MediaQuery.of(context).size.width*0.9,
                            decoration: BoxDecoration(
                                color: Colors.white,
                                borderRadius: BorderRadius.circular(20)
                            ),
-                           child: Column(
-                             children: [
-                               const SizedBox(
-                                 height: 10,
-                               ),
-                               ListTile(
-                                   leading: const Icon(Icons.email_outlined, color: Colors.black,),
-                                   title: Text(data['email'],
-                                     style: GoogleFonts.epilogue(
-                                         fontSize: 18,
-                                         fontWeight: FontWeight.w500
-                                     ),
-                                   ),
-                                   trailing: GestureDetector(
-                                       onTap: (){
-                                         Navigator.push(context, MaterialPageRoute(builder: (context){
-                                           return  EditProfileScreen();
-                                         }));
-                                       },
-                                       child: SvgPicture.asset('assets/icons/Edt.svg')
-                                   )
-                               ),
-                               ListTile(
-                                 leading: const Icon(Icons.credit_card_outlined, color: Colors.black,),
-                                 title: data['links']== null?Text('Linked',
-                                   style: GoogleFonts.epilogue(
-                                       decoration: TextDecoration.underline,
-                                       decorationStyle: TextDecorationStyle.double,
-                                       fontSize: 18,
-                                       fontWeight: FontWeight.w500
-                                   ),
-                                 ):Text(data['links'].toString(),
-                                   style: GoogleFonts.epilogue(
-                                       decoration: TextDecoration.underline,
-                                       decorationStyle: TextDecorationStyle.double,
-                                       fontSize: 18,
-                                       fontWeight: FontWeight.w500
-                                   ),
+                           child: Padding(
+                             padding: const EdgeInsets.only(left: 17.0, top: 17),
+                             child: Column(
+                               children: [
+                                 const SizedBox(
+                                   height: 10,
                                  ),
-                               ),
-                               ListTile(
-                                 leading: SvgPicture.asset('assets/icons/Call.svg'),
-                                 title: data['contact']== null?Text('contact',
-                                   style: GoogleFonts.epilogue(
-                                       fontSize: 18,
-                                       fontWeight: FontWeight.w500
-                                   ),
-                                 ):Text(data['contact'].toString(),
-                                   style: GoogleFonts.epilogue(
-                                       fontSize: 18,
-                                       fontWeight: FontWeight.w500
-                                   ),
-                                 ),
-                               ),
-                               ListTile(
-                                 leading: SvgPicture.asset('assets/icons/Link.svg'),
-                                 title: Text('OpenArtDesign',
-                                   style: GoogleFonts.redHatDisplay(
-                                       fontSize: 18,
-                                       fontWeight: FontWeight.w500
-                                   ),
-                                 ),
-                               ),
-                               const SizedBox(
-                                 height: 15,
-                               ),
-                               Row(
-                                 mainAxisAlignment: MainAxisAlignment.center,
-                                 children: [
-                                   Container(
-                                     height: 40,
-                                     width: 140,
-                                     decoration:  BoxDecoration(
-                                         borderRadius: BorderRadius.circular(10),
-                                         border: const Border(
-                                           top: BorderSide(
-                                               color: Colors.black
+                                 Row(
+                                   children: [
+                                      const Icon(Icons.email_outlined, color: Colors.black,),
+                                            SizedBox(
+                                             width: MediaQuery.of(context).size.width*0.03,
                                            ),
-                                           bottom: BorderSide(
-                                               color: Colors.black
+                                           Text(data['email'],
+                                           style: GoogleFonts.epilogue(
+                                           fontSize: 17,
+                                           fontWeight: FontWeight.w500
                                            ),
-                                           left: BorderSide(
-                                               color: Colors.black
                                            ),
-                                           right: BorderSide(
-                                               color: Colors.black
-                                           ),
-                                         )
+                                     SizedBox(
+                                       width: MediaQuery.of(context).size.width*0.23,
                                      ),
-                                     child: Row(
-                                       mainAxisAlignment: MainAxisAlignment.center,
-                                       children: [
-                                         GestureDetector(
-                                           onTap:(){
-                                             likePosts();
-                                           },
-                                             child: data['like'].contains(uid)?const Icon(Icons.favorite, color: Colors.black):
-                                                 const Icon(Icons.favorite_border)
-                                         ),
-                                         Padding(
-                                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                           child: Text('Follow',
-                                             style: GoogleFonts.epilogue(
-                                                 fontSize: 18,
-                                                 fontWeight: FontWeight.w500
-                                             ),
-                                           ),
-                                         ),
-                                       ],
+                                     GestureDetector(
+                                         onTap: (){
+                                           Navigator.push(context, MaterialPageRoute(builder: (context){
+                                             return  EditProfileScreen();
+                                           }));
+                                         },
+                                         child: SvgPicture.asset('assets/icons/Edt.svg')
+                                     )
+                                   ],
+                                 ),
+                                 const SizedBox(
+                                   height: 19,
+                                 ),
+                                 Row(
+                                   children:  [
+                                   const Icon(Icons.credit_card_outlined, color: Colors.black,),
+                                     SizedBox(
+                                       width: MediaQuery.of(context).size.width*0.03,
                                      ),
-                                   ),
-                                   Padding(
-                                     padding: const EdgeInsets.all(15.0),
-                                     child: GestureDetector(
-                                       onTap: (){
-                                         Navigator.push(context, MaterialPageRoute(builder: (context){
-                                           return UploadScreen();
-                                         }));
-                                       },
-                                       child: Container(
-                                           height: 40,
-                                           width: 40,
-                                           decoration: BoxDecoration(
-                                               borderRadius: BorderRadius.circular(20),
-                                               border: const Border(
-                                                 top: BorderSide(
-                                                     color: Colors.black
-                                                 ),
-                                                 bottom: BorderSide(
-                                                     color: Colors.black
-                                                 ),
-                                                 left: BorderSide(
-                                                     color: Colors.black
-                                                 ),
-                                                 right: BorderSide(
-                                                     color: Colors.black
-                                                 ),
-                                               )
-                                           ),
-                                           child:const Icon(Icons.upload)
+                                     data['links']== null?Text('Linked',
+                                       style: GoogleFonts.redHatDisplay(
+                                           //decoration: TextDecoration.underline,
+                                           decorationStyle: TextDecorationStyle.double,
+                                           fontSize: 17,
+                                           fontWeight: FontWeight.w500
+                                       ),
+                                     ):Text(data['links'].toString(),
+                                       style: GoogleFonts.redHatDisplay(
+                                         // decoration: TextDecoration.underline,
+                                           decorationStyle: TextDecorationStyle.double,
+                                           fontSize: 17,
+                                           fontWeight: FontWeight.w500
                                        ),
                                      ),
-                                   ),
-                                   Container(
-                                       height: 40,
-                                       width: 40,
-                                       decoration: BoxDecoration(
-                                           borderRadius: BorderRadius.circular(20),
+                                   ],
+                                 ),
+                                 const SizedBox(
+                                   height: 19,
+                                 ),
+                                 Row(
+                                   children: [
+                                     SvgPicture.asset('assets/icons/Call.svg'),
+                                     SizedBox(
+                                       width: MediaQuery.of(context).size.width*0.03,
+                                     ),
+                                     data['contact']== null?Text('contact',
+                                       style: GoogleFonts.redHatDisplay(
+                                           fontSize: 16,
+                                           fontWeight: FontWeight.w500
+                                       ),
+                                     ):Text(data['contact'].toString(),
+                                       style: GoogleFonts.redHatDisplay(
+                                           fontSize: 17,
+                                           fontWeight: FontWeight.w500
+                                       ),
+                                     ),
+                                   ],
+                                 ),
+                                 const SizedBox(
+                                   height: 19,
+                                 ),
+                                 Row(
+                                   children: [
+                                      SvgPicture.asset('assets/icons/Link.svg'),
+                                     SizedBox(
+                                       width: MediaQuery.of(context).size.width*0.03,
+                                     ),
+                                     Text('OpenArtDesign',
+                                       style: GoogleFonts.redHatDisplay(
+                                           fontSize: 17,
+                                           fontWeight: FontWeight.w500
+                                       ),
+                                     ),
+                                   ],
+                                 ),
+
+                                 const SizedBox(
+                                   height: 23,
+                                 ),
+                                 Row(
+                                   children: [
+                                     SizedBox(
+                                       width: MediaQuery.of(context).size.width*0.06,
+                                     ),
+                                     Container(
+                                       height: 45,
+                                       width: 160,
+                                       decoration:  BoxDecoration(
+                                           borderRadius: BorderRadius.circular(10),
                                            border: const Border(
                                              top: BorderSide(
                                                  color: Colors.black
@@ -334,11 +302,86 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                                              ),
                                            )
                                        ),
-                                       child:const Icon(Icons.more_horiz)
-                                   ),
-                                 ],
-                               )
-                             ],
+                                       child: Row(
+                                         mainAxisAlignment: MainAxisAlignment.center,
+                                         children: [
+                                           GestureDetector(
+                                             onTap:(){
+                                               likePosts();
+                                             },
+                                               child: data['like'].contains(uid)?const Icon(Icons.favorite, color: Colors.black, size: 35,):
+                                                   const Icon(Icons.favorite_border, size: 35,)
+                                           ),
+                                           Padding(
+                                             padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                             child: Text('Follow',
+                                               style: GoogleFonts.epilogue(
+                                                   fontSize: 20,
+                                                   fontWeight: FontWeight.w700
+                                               ),
+                                             ),
+                                           ),
+                                         ],
+                                       ),
+                                     ),
+                                     Padding(
+                                       padding: const EdgeInsets.all(15.0),
+                                       child: GestureDetector(
+                                         onTap: (){
+                                           Navigator.push(context, MaterialPageRoute(builder: (context){
+                                             return UploadScreen();
+                                           }));
+                                         },
+                                         child: Container(
+                                             height: 45,
+                                             width: 45,
+                                             decoration: BoxDecoration(
+                                                 borderRadius: BorderRadius.circular(30),
+                                                 border: const Border(
+                                                   top: BorderSide(
+                                                       color: Colors.black
+                                                   ),
+                                                   bottom: BorderSide(
+                                                       color: Colors.black
+                                                   ),
+                                                   left: BorderSide(
+                                                       color: Colors.black
+                                                   ),
+                                                   right: BorderSide(
+                                                       color: Colors.black
+                                                   ),
+                                                 )
+                                             ),
+                                             child:const Icon(Icons.upload)
+                                         ),
+                                       ),
+                                     ),
+                                     Container(
+                                         height: 45,
+                                         width: 45,
+                                         decoration: BoxDecoration(
+                                             borderRadius: BorderRadius.circular(30),
+                                             border: const Border(
+                                               top: BorderSide(
+                                                   color: Colors.black
+                                               ),
+                                               bottom: BorderSide(
+                                                   color: Colors.black
+                                               ),
+                                               left: BorderSide(
+                                                   color: Colors.black
+                                               ),
+                                               right: BorderSide(
+                                                   color: Colors.black
+                                               ),
+                                             )
+                                         ),
+                                         child:const Icon(Icons.more_horiz)
+                                     ),
+                                   ],
+                                 )
+                               ],
+                             ),
                            ),
                          ),
 

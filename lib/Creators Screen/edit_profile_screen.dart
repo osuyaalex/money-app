@@ -15,7 +15,7 @@ import '../controllers/auth_controller.dart';
 
 class EditProfileScreen extends StatefulWidget {
 
-  const EditProfileScreen({Key? key}) : super(key: key);
+  const EditProfileScreen({ Key? key}) : super(key: key);
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -101,27 +101,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   }
   pickProfileFromGallery()async{
-    Uint8List im = await _authController.pickImage(ImageSource.gallery, _profilePicKey);
+    Uint8List im = await _authController.pickImage(ImageSource.gallery,_profilePicKey );
     setState(() {
       _profilePic = im;
     });
 
   }
   pickProfileFromCamera()async{
-    Uint8List im = await _authController.pickImage(ImageSource.camera, _profilePicKey);
+    Uint8List im = await _authController.pickImage(ImageSource.camera,_profilePicKey );
     setState(() {
       _profilePic = im;
     });
   }
 
   pickHeaderFromGallery()async{
-    Uint8List im = await _authController.pickImage(ImageSource.gallery, _imageKey);
+    Uint8List im = await _authController.pickImage(ImageSource.gallery,_imageKey );
     setState(() {
       _image = im;
     });
   }
   pickHeaderFromCamera()async{
-    Uint8List im = await _authController.pickImage(ImageSource.camera, _imageKey);
+    Uint8List im = await _authController.pickImage(ImageSource.camera,_imageKey);
     setState(() {
       _image = im;
     });
@@ -154,24 +154,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     // TODO: implement initState
     super.initState();
     loadFormData();
+    _getInitialImages();
   }
-  // _getInitialImages() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //
-  //   String? image1String = prefs.getString(_imageKey);
-  //   if (image1String != null) {
-  //     setState(() {
-  //       _image = base64.decode(image1String);
-  //     });
-  //   }
-  //
-  //   String? image2String = prefs.getString(_profilePicKey);
-  //   if (image2String != null) {
-  //     setState(() {
-  //       _profilePic = base64.decode(image2String);
-  //     });
-  //   }
-  // }
+  _getInitialImages() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? image1String = prefs.getString(_imageKey);
+    if (image1String != null) {
+      setState(() {
+        _image = base64.decode(image1String);
+      });
+    }
+
+    String? image2String = prefs.getString(_profilePicKey);
+    if (image2String != null) {
+      setState(() {
+        _profilePic = base64.decode(image2String);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
