@@ -402,7 +402,7 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                                ),
                              ),
                              const SizedBox(
-                               height: 60,
+                               height: 50,
                              ),
                              Padding(
                                padding: const EdgeInsets.all(20.0),
@@ -426,6 +426,45 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                    },
                  ),
                  const ProductScreen(),
+                 const SizedBox(
+                   height: 93,
+                 ),
+                 Center(
+                   child: SvgPicture.asset('assets/images/Button (4).svg'),
+                 ),
+                 const SizedBox(
+                   height: 45,
+                 ),
+                 const Padding(
+                   padding: EdgeInsets.symmetric(horizontal: 25.0),
+                   child: Divider(
+                     height: 6,
+                   ),
+                 ),
+                 const SizedBox(
+                   height: 120,
+                 ),
+                 Center(
+                   child: Padding(
+                     padding: const EdgeInsets.all(8.0),
+                     child: SvgPicture.asset('assets/icons/Logo (1).svg'),
+                   ),
+                 ),
+                 Center(child: SvgPicture.asset('assets/icons/The New Creative Economy.svg')),
+                 const SizedBox(
+                   height: 25,
+                 ),
+                 Center(
+                   child: Padding(
+                     padding: const EdgeInsets.all(8),
+                     child:  SvgPicture.asset('assets/images/Button (2).svg'),
+                   ),
+                 ),
+                 Center(child: SvgPicture.asset('assets/images/Button (3).svg')),
+                 const SizedBox(
+                   height: 90,
+                 ),
+                 SvgPicture.asset('assets/images/Footer.svg',width: MediaQuery.of(context).size.width,)
 
                ],
              )

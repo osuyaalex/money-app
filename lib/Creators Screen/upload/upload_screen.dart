@@ -12,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 import 'package:path/path.dart' as path;
+import 'package:walletapp/Creators%20Screen/creators_home.dart';
 import 'package:walletapp/utils/snackbar.dart';
 
 
@@ -167,6 +168,16 @@ class _UploadScreenState extends State<UploadScreen> {
     }else{
      return EasyLoading.dismiss();
     }
+    }
+    _getProfilePic()async{
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('Creators')
+            .doc(_auth.currentUser!.uid)
+            .get();
+        setState(() {
+          Map<String, dynamic> creatorData = userDoc.data()!as Map<String, dynamic>;
+          _creatorDoc = creatorData;
+        });
     }
 
   @override
@@ -554,6 +565,7 @@ class _UploadScreenState extends State<UploadScreen> {
                     Center(
                       child: GestureDetector(
                           onTap: (){
+                            _getProfilePic();
                            if(_globalKey.currentState!.validate()){
                              if(_pickFileList.isNotEmpty){
                                showDialog(
@@ -613,6 +625,7 @@ class _UploadScreenState extends State<UploadScreen> {
                                );
                              }else if(_pickFileList.isEmpty &&_file != null){
                                if(_extension == 'png'){
+                                 _getProfilePic();
                                  showDialog(
                                      context: context,
                                      builder: (context){
@@ -648,12 +661,68 @@ class _UploadScreenState extends State<UploadScreen> {
                                            ),
                                          ),
                                          actions: [
-                                           Text(_itemName,
-                                             style: GoogleFonts.epilogue(
-                                                 fontWeight: FontWeight.w700,
-                                                 fontSize: 19
-                                             ),
-                                           )
+                                           Column(
+                                             children: [
+                                               Row(
+                                                 mainAxisAlignment: MainAxisAlignment.start,
+                                                 children: [
+                                                   Padding(
+                                                     padding: const EdgeInsets.all(8.0),
+                                                     child: Text(_itemName,
+                                                       style: GoogleFonts.epilogue(
+                                                           fontWeight: FontWeight.w700,
+                                                           fontSize: 19
+                                                       ),
+                                                     ),
+                                                   ),
+                                                 ],
+                                               ),
+                                               const SizedBox(
+                                                 height: 7,
+                                               ),
+                                               Row(
+                                                 children: [
+                                                   GestureDetector(
+                                                     onTap:(){
+                                                       Navigator.push(context, MaterialPageRoute(builder: (context){
+                                                         return const CreatorHomeScreen();
+                                                       }));
+                                                     },
+                                                     child: CircleAvatar(
+                                                       radius: 20,
+                                                       backgroundImage: _creatorDoc['ProfilePic'] == null ? const NetworkImage(
+                                                           'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg'
+                                                       ):NetworkImage(_creatorDoc['ProfilePic']),
+                                                     ),
+                                                   ),
+                                                   Column(
+                                                     children: [
+                                                       Text(_creatorDoc['FullName'],
+                                                         style: GoogleFonts.epilogue(
+                                                             letterSpacing: 1,
+                                                             fontWeight: FontWeight.w700,
+                                                             fontSize: 17
+                                                         ),
+                                                       ),
+                                                       Padding(
+                                                         padding: const EdgeInsets.only(left: 8.0),
+                                                         child: Text('creator',
+                                                           style: GoogleFonts.epilogue(
+                                                               fontWeight: FontWeight.w500,
+                                                               color: Colors.grey.shade700
+                                                           ),
+                                                         ),
+                                                       )
+                                                     ],
+                                                   )
+                                                 ],
+                                               ),
+                                               const SizedBox(
+                                                 height: 20,
+                                               )
+                                             ],
+                                           ),
+
                                          ],
                                          actionsAlignment: MainAxisAlignment.start,
                                          actionsPadding: EdgeInsets.only(left: 30),
@@ -662,6 +731,7 @@ class _UploadScreenState extends State<UploadScreen> {
                                      }
                                  );
                                } else if(_extension == 'jpg'){
+                                 _getProfilePic();
                                  showDialog(
                                      context: context,
                                      builder: (context){
@@ -696,12 +766,68 @@ class _UploadScreenState extends State<UploadScreen> {
                                            ),
                                          ),
                                          actions: [
-                                           Text(_itemName,
-                                             style: GoogleFonts.epilogue(
-                                                 fontWeight: FontWeight.w700,
-                                                 fontSize: 23
-                                             ),
+                                           Column(
+                                             children: [
+                                               Row(
+                                                 mainAxisAlignment: MainAxisAlignment.start,
+                                                 children: [
+                                                   Padding(
+                                                     padding: const EdgeInsets.all(8.0),
+                                                     child: Text(_itemName,
+                                                       style: GoogleFonts.epilogue(
+                                                           fontWeight: FontWeight.w700,
+                                                           fontSize: 23
+                                                       ),
+                                                     ),
+                                                   ),
+                                                 ],
+                                               ),
+                                               const SizedBox(
+                                                 height: 7,
+                                               ),
+                                               Row(
+                                                 children: [
+                                                   GestureDetector(
+                                                     onTap:(){
+                                                       Navigator.push(context, MaterialPageRoute(builder: (context){
+                                                         return const CreatorHomeScreen();
+                                                       }));
+                                                     },
+                                                     child: CircleAvatar(
+                                                       radius: 20,
+                                                       backgroundImage: _creatorDoc['ProfilePic'] == null ? const NetworkImage(
+                                                           'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg'
+                                                       ):NetworkImage(_creatorDoc['ProfilePic']),
+                                                     ),
+                                                   ),
+                                                   Column(
+                                                     children: [
+                                                       Text(_creatorDoc['FullName'],
+                                                         style: GoogleFonts.epilogue(
+                                                             letterSpacing: 1,
+                                                             fontWeight: FontWeight.w700,
+                                                             fontSize: 17
+                                                         ),
+                                                       ),
+                                                       Padding(
+                                                         padding: const EdgeInsets.only(left: 8.0),
+                                                         child: Text('creator',
+                                                           style: GoogleFonts.epilogue(
+                                                               fontWeight: FontWeight.w500,
+                                                               color: Colors.grey.shade700
+                                                           ),
+                                                         ),
+                                                       )
+                                                     ],
+                                                   )
+                                                 ],
+                                               ),
+                                               const SizedBox(
+                                                 height: 20,
+                                               ),
+                                             ],
                                            ),
+
                                          ],
                                          actionsAlignment: MainAxisAlignment.start,
                                          actionsPadding: EdgeInsets.only(left: 30),
@@ -931,7 +1057,40 @@ class _UploadScreenState extends State<UploadScreen> {
                           },
                             child: SvgPicture.asset('assets/images/Button (1).svg')
                         )
-                    )
+                    ),
+                    const SizedBox(
+                      height: 45,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 25.0),
+                      child: Divider(
+                        height: 6,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 120,
+                    ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SvgPicture.asset('assets/icons/Logo (1).svg'),
+                      ),
+                    ),
+                    Center(child: SvgPicture.asset('assets/icons/The New Creative Economy.svg')),
+                    const SizedBox(
+                      height: 25,
+                    ),
+                   Center(
+                     child: Padding(
+                         padding: const EdgeInsets.all(8),
+                       child:  SvgPicture.asset('assets/images/Button (2).svg'),
+                     ),
+                   ),
+                    Center(child: SvgPicture.asset('assets/images/Button (3).svg')),
+                    const SizedBox(
+                      height: 90,
+                    ),
+                    SvgPicture.asset('assets/images/Footer.svg',width: MediaQuery.of(context).size.width,)
                   ],
                 ),
               ) ,
