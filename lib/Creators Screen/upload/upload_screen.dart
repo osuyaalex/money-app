@@ -151,6 +151,12 @@ class _UploadScreenState extends State<UploadScreen> {
        List<String>? multiImage = await _uploadMultipleItemImageToStorage();
        _itemId =const Uuid().v4();
        await productCollection.doc(_itemId).set({
+         'location': _creatorDoc['location'],
+         'links': _creatorDoc['links'],
+         'like': _creatorDoc['like'],
+         'email': _creatorDoc['email'],
+         'contact':_creatorDoc['contact'],
+         'Headers': _creatorDoc['Headers'],
          'ProfilePic':_creatorDoc['ProfilePic'],
          'FullName':_creatorDoc['FullName'],
          'uid': _auth.currentUser!.uid,
