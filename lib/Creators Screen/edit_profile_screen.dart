@@ -67,15 +67,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
      CollectionReference creatorCollection = FirebaseFirestore.instance.collection('Creators');
      String profileImageUrl =await uploadHeaderToStorage(_image);
      String profilePicUrl =await uploadProfilePictureToStorage(_profilePic);
-     _firestore.collection('Creators').where('uid', isEqualTo:_auth.currentUser!.uid ).
+     await _firestore.collection('Creators').where('uid', isEqualTo:_auth.currentUser!.uid ).
      where('email', isNull:false ).
      get().
      then((QuerySnapshot snapshot){
        int length = snapshot.docs.length;
-       snapshot.docs.forEach((DocumentSnapshot document) {
+       snapshot.docs.forEach((DocumentSnapshot document) async{
          final String documentId = length.toString();
          final DocumentSnapshot creatorDoc = document;
-         creatorCollection.doc(FirebaseAuth.instance.currentUser!.uid).set({
+         await creatorCollection.doc(FirebaseAuth.instance.currentUser!.uid).set({
            'email':creatorDoc.get('email'),
            'FullName': _fullNameController.text,
            'ID':'ID $documentId',

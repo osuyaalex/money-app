@@ -21,7 +21,7 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
   CollectionReference _editProfileScreen = FirebaseFirestore.instance.collection('Creators');
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String uid = '';
+  String? uid;
 
 
 
@@ -41,13 +41,12 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getUid();
   }
-  getUid(){
-    String currentUid= _auth.currentUser!.uid;
-    setState(() {
-      uid = currentUid;
-    });
+   getUid(){
+      String currentUid= _auth.currentUser!.uid;
+      setState(() {
+        uid = currentUid;
+      });
   }
 
   @override
@@ -359,9 +358,10 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
                                              GestureDetector(
                                                  onTap: () {
                                                    likePosts();
+                                                   getUid();
                                                  },
                                                  child: data['like'].contains(
-                                                     uid) ? const Icon(
+                                                    uid) ? const Icon(
                                                    Icons.favorite,
                                                    color: Colors.black,
                                                    size: 35,) :

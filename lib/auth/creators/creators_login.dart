@@ -42,14 +42,17 @@ class _CreatorLoginScreenState extends State<CreatorLoginScreen> {
           if(res != 'success'){
             return snack(context, res);
           }else{
-           Navigator.push(context, MaterialPageRoute(builder: (context){
+           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
              return CreatorHomeScreen();
            }));
           }
           setState(() {
             _wait = false;
           });
-
+      }else{
+        setState(() {
+          _wait = false;
+        });
       }
     }
     return Form(

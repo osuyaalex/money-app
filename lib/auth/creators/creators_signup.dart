@@ -44,15 +44,16 @@ class _CreatorSignUpScreenState extends State<CreatorSignUpScreen> {
             _wait = false;
           });
           if(res != 'success'){
+            setState(() {
+              _wait = false;
+            });
             return snack(context, res);
           }else{
             setState(() {
+              _wait = false;
               _globalKey.currentState!.reset();
             });
           }
-          setState(() {
-            _wait = false;
-          });
         }else{
           showDialog(
               context: context,
@@ -75,6 +76,10 @@ class _CreatorSignUpScreenState extends State<CreatorSignUpScreen> {
             _wait = false;
           });
         }
+      }else{
+        setState(() {
+          _wait = false;
+        });
       }
     }
     return Form(

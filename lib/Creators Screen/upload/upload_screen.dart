@@ -11,7 +11,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
-import 'package:path/path.dart' as path;
 import 'package:walletapp/Creators%20Screen/creators_home.dart';
 import 'package:walletapp/utils/snackbar.dart';
 
@@ -26,17 +25,17 @@ class UploadScreen extends StatefulWidget {
 }
 
 class _UploadScreenState extends State<UploadScreen> {
-  bool _isMultiFileSelected = false;
-  bool _saleThisItem = false;
+  bool _enterDiscount = false;
   bool _instantSalePrice = false;
   bool _unlockOncePurchased = false;
-  bool _addToCollection = false;
   dynamic _file;
   dynamic _extension;
   List<PlatformFile> _pickFileList = [];
   bool _showMultiPick = false;
+ int _discount = 1;
+ int? _instantPrice;
   late String _itemName;
-  late String _itemTag;
+  late int _itemPrice;
   late String _itemDescription;
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FirebaseAuth _auth = FirebaseAuth.instance;
@@ -115,7 +114,7 @@ class _UploadScreenState extends State<UploadScreen> {
     if(_pickFileList.isNotEmpty){
       try{
         for(PlatformFile file in _pickFileList){
-          Reference ref =  FirebaseStorage.instance.ref().child('imageMulti/${path.basename}');
+          Reference ref =  FirebaseStorage.instance.ref().child('imageMulti').child(Uuid().v4());
           await ref.putFile(File(file.path!)).whenComplete(()async{
             await ref.getDownloadURL().then((value){
               downloadUrls.add(value);
@@ -138,35 +137,43 @@ class _UploadScreenState extends State<UploadScreen> {
     });
     if(_globalKey.currentState!.validate()){
      if(_file != null || _pickFileList.isNotEmpty){
-       CollectionReference productCollection =  _firestore.collection('Products');
-       DocumentSnapshot userDoc = await FirebaseFirestore.instance
-           .collection('Creators')
-           .doc(_auth.currentUser!.uid)
-           .get();
-       setState(() {
-         Map<String, dynamic> creatorData = userDoc.data()!as Map<String, dynamic>;
-         _creatorDoc = creatorData;
-       });
-       String? itemImageUrl = await _uploadItemImageToStorage(_file);
-       List<String>? multiImage = await _uploadMultipleItemImageToStorage();
-       _itemId =const Uuid().v4();
-       await productCollection.doc(_itemId).set({
-         'location': _creatorDoc['location'],
-         'links': _creatorDoc['links'],
-         'like': _creatorDoc['like'],
-         'email': _creatorDoc['email'],
-         'contact':_creatorDoc['contact'],
-         'Headers': _creatorDoc['Headers'],
-         'ProfilePic':_creatorDoc['ProfilePic'],
-         'FullName':_creatorDoc['FullName'],
-         'uid': _auth.currentUser!.uid,
-         'itemName': _itemName,
-         'itemImage': itemImageUrl,
-         'itemImageList': multiImage,
-         'itemDescription': _itemDescription,
-         'itemTag':_itemTag
-       });
-       EasyLoading.dismiss();
+       if(_discount <= 100){
+         CollectionReference productCollection =  _firestore.collection('Products');
+         DocumentSnapshot userDoc = await FirebaseFirestore.instance
+             .collection('Creators')
+             .doc(_auth.currentUser!.uid)
+             .get();
+         setState(() {
+           Map<String, dynamic> creatorData = userDoc.data()!as Map<String, dynamic>;
+           _creatorDoc = creatorData;
+         });
+         String? itemImageUrl = await _uploadItemImageToStorage(_file);
+         List<String>? multiImage = await _uploadMultipleItemImageToStorage();
+         _itemId =const Uuid().v4();
+         await productCollection.doc(_itemId).set({
+           'email': _creatorDoc['email'],
+           'itemId': _itemId,
+           'like': [],
+           'location': _creatorDoc['location'],
+           'links': _creatorDoc['links'],
+           'contact':_creatorDoc['contact'],
+           'Headers': _creatorDoc['Headers'],
+           'ProfilePic':_creatorDoc['ProfilePic'],
+           'FullName':_creatorDoc['FullName'],
+           'uid': _auth.currentUser!.uid,
+           'itemName': _itemName,
+           'itemImage': itemImageUrl,
+           'itemImageList': multiImage,
+           'itemDescription': _itemDescription,
+           'itemPrice':_itemPrice,
+           'discount': _discount,
+           'instantPrice':_instantPrice
+         });
+         EasyLoading.dismiss();
+       }else{
+         EasyLoading.dismiss();
+         return snack(context, 'Discounts Cannot be greater than 100%');
+       }
      }else{
          EasyLoading.dismiss();
        return snack(context, 'Please Select Image');
@@ -262,11 +269,10 @@ class _UploadScreenState extends State<UploadScreen> {
                     Row(
                       children: [
                         Checkbox(
-                          value: _isMultiFileSelected,
+                          value: _showMultiPick,
                           onChanged: (value) {
                             setState(() {
-                              _isMultiFileSelected = value!;
-                              _showMultiPick = !_showMultiPick;
+                              _showMultiPick = value!;
                             });
                           },
                           side: BorderSide(
@@ -330,18 +336,19 @@ class _UploadScreenState extends State<UploadScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15.0),
                       child: TextFormField(
+                        keyboardType: TextInputType.number,
                         validator: (v){
                           if(v!.isEmpty){
-                            return 'Please fill in Tag name';
+                            return 'Please fill in Price';
                           }
                         },
                         onChanged: (value){
-                          _itemTag = value;
+                          _itemPrice = int.parse(value);
                         },
                         decoration: InputDecoration(
                           fillColor: Colors.grey.shade300,
                             filled: true,
-                            labelText: 'Tag',
+                            labelText: 'Price',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: const BorderSide(
@@ -361,11 +368,11 @@ class _UploadScreenState extends State<UploadScreen> {
                       padding: const EdgeInsets.all(15.0),
                       child: TextFormField(
                         validator: (v){
-                          if(v!.isEmpty){
-                            return 'Please fill in description';
+                          if(v!.isEmpty || v.length < 60){
+                            return 'info not enough. Put in more';
                           }
                         },
-                        maxLength: 200,
+                        maxLength: 500,
                         onChanged: (value){
                           _itemDescription = value;
                         },
@@ -395,10 +402,10 @@ class _UploadScreenState extends State<UploadScreen> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 16.0),
                           child: Checkbox(
-                            value: _saleThisItem,
+                            value: _enterDiscount,
                             onChanged: (value) {
                               setState(() {
-                                _saleThisItem = value!;
+                                _enterDiscount = value!;
                               });
                             },
                             side: BorderSide(
@@ -409,17 +416,44 @@ class _UploadScreenState extends State<UploadScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Sale this item',
+                            Text('Enter Discount',
                               style: GoogleFonts.epilogue(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.black
                               ),
                             ),
+                            _enterDiscount ?Row(
+                              children: [
+                                Text('Enter Discount Here:',
+                                  style: GoogleFonts.epilogue(
+                                    fontWeight: FontWeight.w500
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SizedBox(
+                                    height: 30,
+                                    width: 25,
+                                    child: TextFormField(
+                                      keyboardType: TextInputType.number,
+                                      onChanged: (v){
+                                        _discount = int.parse(v);
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                 Text('%',
+                                     style: GoogleFonts.epilogue(
+                                         fontWeight: FontWeight.w500
+                                     )
+                                 )
+                              ],
+                            ): Container(),
                             const SizedBox(
                               height: 7,
                             ),
-                            Text('You\'ll receive bids on this item',
+                            Text('Put in a discount on this item (Discounts start from 2%)',
 
                               style: GoogleFonts.epilogue(
                                   fontWeight: FontWeight.w500,
@@ -459,6 +493,25 @@ class _UploadScreenState extends State<UploadScreen> {
                                   color: Colors.black
                               ),
                             ),
+                            _instantSalePrice ?Row(
+                              children: [
+                                Text('Put in price Here:',
+                                  style: GoogleFonts.epilogue(
+                                      fontWeight: FontWeight.w500
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 30,
+                                  width: 40,
+                                  child: TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    onChanged: (v){
+                                      _instantPrice = int.parse(v);
+                                    },
+                                  ),
+                                )
+                              ],
+                            ): Container(),
                             const SizedBox(
                               height: 7,
                             ),
@@ -524,50 +577,7 @@ class _UploadScreenState extends State<UploadScreen> {
                     const SizedBox(
                       height: 24,
                     ),
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 30.0),
-                          child: Checkbox(
-                            value: _addToCollection,
-                            onChanged: (value) {
-                              setState(() {
-                                _addToCollection = value!;
-                              });
-                            },
-                            side: BorderSide(
-                                color: Colors.grey.shade400
-                            ),
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Add to collection',
-                              style: GoogleFonts.epilogue(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.black
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 7,
-                            ),
-                            SizedBox(
-                              width: 300,
-                              child: Text('Choose an existing collection or create a new one',
-                                softWrap: true,
-                                maxLines: 2,
-                                style: GoogleFonts.epilogue(
-                                  fontWeight: FontWeight.w500,
-                                    color: Colors.grey.shade500
-                                ),
-                              ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
+                    
                     Center(
                       child: GestureDetector(
                           onTap: (){
