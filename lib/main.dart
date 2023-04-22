@@ -3,11 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
-import 'package:walletapp/Creators%20Screen/creators_home.dart';
 import 'package:walletapp/Creators%20Screen/product_provider.dart';
-import 'package:walletapp/auth/creators/creators_login.dart';
-import 'package:walletapp/auth/creators/creators_signup.dart';
-import 'package:walletapp/auth/users/Signup.dart';
+import 'package:walletapp/auth/users/login_users.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +34,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home:  const CreatorLoginScreen(),
+      home:  const UsersLoginScreen(),
       builder: EasyLoading.init()
     );
   }

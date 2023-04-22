@@ -1,6 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:walletapp/auth/users/login_users.dart';
 import 'package:walletapp/controllers/auth_controller.dart';
 import 'package:walletapp/utils/snackbar.dart';
 
@@ -19,13 +23,28 @@ class _UsersSignUpScreenState extends State<UsersSignUpScreen> {
   late String _confirmPassword;
   final AuthController _controller = AuthController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
+  Uint8List? _image;
   bool _wait = false;
   bool _obscureText = true;
 
 
   @override
   Widget build(BuildContext context) {
-    signUp()async{
+
+    _pickImagefromCamera()async{
+    Uint8List im =  await _controller.pickImages(ImageSource.camera,);
+    setState(() {
+      _image = im;
+    });
+    }
+    _pickImageFromGallery()async{
+      Uint8List im = await _controller.pickImages(ImageSource.gallery,);
+      setState(() {
+        _image = im;
+      });
+    }
+
+    _signUp()async{
       setState(() {
         _wait = true;
       });
@@ -35,7 +54,8 @@ class _UsersSignUpScreenState extends State<UsersSignUpScreen> {
               _enterName,
               _enterEmail,
               _enterPassword,
-              _confirmPassword
+              _confirmPassword,
+              _image
           );
           setState(() {
             _wait = false;
@@ -45,11 +65,10 @@ class _UsersSignUpScreenState extends State<UsersSignUpScreen> {
           }else{
           setState(() {
             _globalKey.currentState!.reset();
-          });
-          }
-          setState(() {
+            _image = null;
             _wait = false;
           });
+          }
         }else{
           showDialog(
               context: context,
@@ -68,7 +87,12 @@ class _UsersSignUpScreenState extends State<UsersSignUpScreen> {
                 );
               }
           );
+          setState(() {
+            _wait = false;
+          });
         }
+      }else{
+        _wait = false;
       }
     }
     return Form(
@@ -82,13 +106,38 @@ class _UsersSignUpScreenState extends State<UsersSignUpScreen> {
                 padding:  EdgeInsets.all(MediaQuery.of(context).padding.top),
                 child: SvgPicture.asset('assets/images/Logo.svg'),
               ),
-              Container(
-                child: Center(
-                  child: CircleAvatar(
-                    radius: 55,
-                    backgroundImage: NetworkImage('https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                   Center(
+                    child: _image == null? const CircleAvatar(
+                      radius: 55,
+                      backgroundImage: NetworkImage('https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg'),
+                    ):CircleAvatar(
+                      backgroundImage: MemoryImage(_image!),
+                      radius: 55,
+                    ),
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        IconButton(
+                            onPressed: (){
+                              _pickImagefromCamera();
+                            },
+                            icon: const Icon(Icons.camera_alt_outlined, color: Colors.purpleAccent,)
+                        ),
+                        IconButton(
+                            onPressed: (){
+                              _pickImageFromGallery();
+                            },
+                            icon: Icon(Icons.image, color: Colors.purpleAccent,)
+                        )
+                      ],
+                    ),
+                  )
+                ],
               ),
               const SizedBox(
                 height: 25,
@@ -296,7 +345,7 @@ class _UsersSignUpScreenState extends State<UsersSignUpScreen> {
               ),
               GestureDetector(
                 onTap: (){
-                  signUp();
+                  _signUp();
                 },
                 child: Container(
                   height: 50,
@@ -310,7 +359,7 @@ class _UsersSignUpScreenState extends State<UsersSignUpScreen> {
                     ])
                   ),
                   child: Center(
-                    child: Text('Sign Up',
+                    child: _wait ? const CircularProgressIndicator(color: Colors.white,):Text('Sign Up',
                       style: GoogleFonts.epilogue(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -335,7 +384,11 @@ class _UsersSignUpScreenState extends State<UsersSignUpScreen> {
                       ),
                     ),
                     TextButton(
-                        onPressed: (){},
+                        onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context){
+                            return UsersLoginScreen();
+                          }));
+                        },
                         child: Text('SignIn',
                           style: GoogleFonts.epilogue(
                               color: Colors.purple,

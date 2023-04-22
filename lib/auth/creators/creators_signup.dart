@@ -98,7 +98,7 @@ class _CreatorSignUpScreenState extends State<CreatorSignUpScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('Create Your Account',
+                    child: Text('Welcome, Merchant',
                       style: GoogleFonts.epilogue(
                         fontSize: 23,
                         fontWeight: FontWeight.bold,

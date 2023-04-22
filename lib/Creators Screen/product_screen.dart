@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:walletapp/Creators%20Screen/product_description.dart';
-
 class ProductScreen extends StatefulWidget {
   const ProductScreen({Key? key}) : super(key: key);
 
@@ -74,38 +72,24 @@ class _ProductScreenState extends State<ProductScreen> {
                       child: Column(
                         children: [
                       snapshot.data!.docs[index]['itemImage'] != null ?
-                      GestureDetector(
-                          onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context){
-                              return ProductDescription(products: products);
-                            }));
-                          },
-                        child: Container(
-                              height: 400,
-                              width:MediaQuery.of(context).size.width*0.8,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(25),
-                                image: DecorationImage(image: NetworkImage(snapshot.data!.docs[index]['itemImage']),fit: BoxFit.fill)
+                      Container(
+                            height: 400,
+                            width:MediaQuery.of(context).size.width*0.8,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              image: DecorationImage(image: NetworkImage(snapshot.data!.docs[index]['itemImage']),fit: BoxFit.fill)
 
-                              ),
                             ),
-                      ):Stack(
+                          ):Stack(
                             children: [
-                              GestureDetector(
-                                onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context){
-                                    return ProductDescription(products: products);
-                                  }));
-                                },
-                                child: Container(
-                                  height: 400,
-                                  width:MediaQuery.of(context).size.width*0.8,
-                                  decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(25),
-                                  image:DecorationImage(image: NetworkImage(snapshot.data!.docs[index]['itemImageList'][0]), fit: BoxFit.fill)
+                              Container(
+                                height: 400,
+                                width:MediaQuery.of(context).size.width*0.8,
+                                decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
+                                image:DecorationImage(image: NetworkImage(snapshot.data!.docs[index]['itemImageList'][0]), fit: BoxFit.fill)
                         ),
                       ),
-                              ),
                               Positioned(
                                 right: 5,
                                   bottom: 3,

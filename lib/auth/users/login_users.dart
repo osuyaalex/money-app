@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:walletapp/Creators%20Screen/creators_home.dart';
-import 'package:walletapp/auth/creators/creators_signup.dart';
-import 'package:walletapp/auth/users/login_users.dart';
+import 'package:walletapp/Users%20Screen/Home/home_page.dart';
+import 'package:walletapp/auth/creators/creators_login.dart';
+import 'package:walletapp/auth/users/Signup.dart';
 import 'package:walletapp/controllers/auth_controller.dart';
 import 'package:walletapp/utils/snackbar.dart';
 
 
-class CreatorLoginScreen extends StatefulWidget {
+class UsersLoginScreen extends StatefulWidget {
 
-  const CreatorLoginScreen({Key? key}) : super(key: key);
+  const UsersLoginScreen({Key? key}) : super(key: key);
 
   @override
-  State<CreatorLoginScreen> createState() => _CreatorLoginScreenState();
+  State<UsersLoginScreen> createState() => _UsersLoginScreen();
 }
 
-class _CreatorLoginScreenState extends State<CreatorLoginScreen> {
+class _UsersLoginScreen extends State<UsersLoginScreen> {
   late String _enterEmail;
   late String _enterPassword;
 
@@ -33,23 +34,23 @@ class _CreatorLoginScreenState extends State<CreatorLoginScreen> {
         _wait = true;
       });
       if(_globalKey.currentState!.validate()){
-          String res = await _controller.loginCreatorsOrUsers(
-              _enterEmail,
-             _enterPassword
-          );
-          setState(() {
-            _wait = false;
-          });
-          if(res != 'success'){
-            return snack(context, res);
-          }else{
-           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
-             return CreatorHomeScreen();
-           }));
-          }
-          setState(() {
-            _wait = false;
-          });
+        String res = await _controller.loginCreatorsOrUsers(
+            _enterEmail,
+            _enterPassword
+         );
+        setState(() {
+          _wait = false;
+        });
+        if(res != 'success'){
+          return snack(context, res);
+        }else{
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context){
+            return HomePage();
+          }));
+        }
+        setState(() {
+          _wait = false;
+        });
       }else{
         setState(() {
           _wait = false;
@@ -222,7 +223,7 @@ class _CreatorLoginScreenState extends State<CreatorLoginScreen> {
                 height: 20,
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(top: 8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -235,7 +236,7 @@ class _CreatorLoginScreenState extends State<CreatorLoginScreen> {
                     TextButton(
                       onPressed: (){
                         Navigator.push(context, MaterialPageRoute(builder: (context){
-                          return const CreatorSignUpScreen();
+                          return const UsersSignUpScreen();
                         }));
                       },
                       child: Text('SignUp',
@@ -260,7 +261,7 @@ class _CreatorLoginScreenState extends State<CreatorLoginScreen> {
                   TextButton(
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context){
-                        return const UsersLoginScreen();
+                        return const CreatorLoginScreen();
                       }));
                     },
                     child: Text('Switch',

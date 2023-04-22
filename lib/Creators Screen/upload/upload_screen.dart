@@ -167,7 +167,8 @@ class _UploadScreenState extends State<UploadScreen> {
            'itemDescription': _itemDescription,
            'itemPrice':_itemPrice,
            'discount': _discount,
-           'instantPrice':_instantPrice
+           'instantPrice':_instantPrice,
+           'open': false
          });
          EasyLoading.dismiss();
        }else{
@@ -362,6 +363,7 @@ class _UploadScreenState extends State<UploadScreen> {
                             )
                           )
                         ),
+
                       ),
                     ),
                     Padding(
